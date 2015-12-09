@@ -1,0 +1,387 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>BPulse Java Client</title>
+
+    <link href="stylesheets/screen.css" rel="stylesheet" type="text/css" media="screen" />
+    <link href="stylesheets/print.css" rel="stylesheet" type="text/css" media="print" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+      <script src="javascripts/all.js" type="text/javascript"></script>
+
+      <script>
+        $(function() {
+          setupLanguages(["java","go","net"]);
+        });
+      </script>
+  </head>
+
+  <body class="index">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="images/navbar.png" />
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+      <img src="images/logo.png" />
+        <div class="lang-selector">
+              <a href="#" data-language-name="java">java</a>
+              <a href="#" data-language-name="go">go</a>
+              <a href="#" data-language-name="net">net</a>
+        </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <div id="toc">
+      </div>
+        <ul class="toc-footer">
+            <li><a href='#'>Powered by Bpulse ©</a></li>
+            <li><a href='www.bpulse.io'>www.bpulse.io</a></li>
+        </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        <h1 id="introduction">Introduction</h1>
+
+<p>Bpulse SDK Java or BPulse Java Client is a conector between any java based application subscribed to BPULSE Service and the PULSES COLLECTOR REST SERVICE.</p>
+
+<p>This README explains how to integrate the conector with the target client application, configuration parameters and how to use it.</p>
+
+<h1 id="requirements">Requirements</h1>
+
+<ul>
+<li><strong><a href="https://github.com/bpulse/bpulse-protobuf-java">bpulse-protobuf-java</a></strong></li>
+<li><strong>Apache Maven 3+</strong></li>
+<li><strong>JDK Version 1.7+</strong></li>
+<li><strong>Protocol Buffers (protoc) v 2.5.0</strong></li>
+</ul>
+
+<h1 id="build-dependencies">Build dependencies</h1>
+
+<p>The following dependencies are required to build the sdk and are also required in the classpath of your application at runtime:</p>
+
+<ul>
+<li>BPulse dependencies
+
+<ul>
+<li>bpulse.protobuf.jar</li>
+</ul></li>
+<li>Google Protobuf dependencies
+
+<ul>
+<li>protobuf-java-format-1.2.jar</li>
+<li>protobuf-java.2.5.0.jar</li>
+</ul></li>
+<li>Apache http dependencies
+
+<ul>
+<li>httpclient-4.4.1.jar</li>
+<li>httpcore-4.4.1.jar</li>
+<li>commons-logging-1.2.jar</li>
+<li>commons-codec-1.9.jar</li>
+</ul></li>
+<li>H2 Database Engine dependencies
+
+<ul>
+<li>h2-1.4.186.jar</li>
+</ul></li>
+<li>SLF4J dependencies
+
+<ul>
+<li>slf4j-api-1.7.5.jar</li>
+<li>Corresponding Binding for used logging framework (See <strong>Binding with a logging framework at deployment time</strong> at <a href="http://www.slf4j.org/manual.html">http://www.slf4j.org/manual.html</a>)</li>
+</ul></li>
+</ul>
+
+<p>This is a maven project, so all of this dependencies are already added in the given pom.xml but you must have them in mind if you build
+ your application without maven or the runtime classpath is provided by another third party.</p>
+
+<h1 id="usage">Usage</h1>
+
+<h2 id="maven">Maven</h2>
+
+<p>After building the project and install it on the maven repo, add this dependency to your pom.xml</p>
+
+<blockquote>
+<p>Use this code:</p>
+</blockquote>
+<pre class="highlight java"><code>
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">me</span><span class="o">.</span><span class="na">bpulse</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">bpulse</span><span class="o">-</span><span class="n">java</span><span class="o">-</span><span class="n">client</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">1.0</span><span class="o">.</span><span class="mi">0</span><span class="o">-</span><span class="n">SNAPSHOT</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+
+</code></pre>
+
+<p>Remember the dependencies mentioned above incase your current classpath doesn&rsquo;t have them at runtime.</p>
+
+<h2 id="manual">Manual</h2>
+
+<blockquote>
+<p>Build the sdk using</p>
+</blockquote>
+<pre class="highlight java"><code><span class="err">$</span> <span class="n">mvn</span> <span class="n">clean</span> <span class="kn">package</span>
+</code></pre>
+
+<p>Then take the generated bpulse-java-client-[version].jar under target/ directory and add it to your classpath along with
+the other dependencies mentioned.</p>
+
+<h2 id="sending-pulses-to-bpulse">Sending pulses to BPULSE</h2>
+<pre class="highlight java"><code><span class="c1">//get the BPulseJavaClient instance. It manages the pulses repository and begins the pulses notification timer.</span>
+<span class="n">BPulseJavaClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">BPulseJavaClient</span><span class="o">.</span><span class="na">getInstance</span><span class="o">();</span>
+</code></pre>
+
+<p>The starting point is the BPulseJavaClient class for pulses sending to BPULSE. It implements two methods: getInstance() and sendPulse(PulsesRQ) to publish them via BPULSE COLLECTOR REST SERVICE.</p>
+<pre class="highlight java"><code><span class="c1">//get the BPulseJavaClient instance. It manages the pulses repository and begins the pulses notification timer.</span>
+<span class="n">BPulseJavaClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">BPulseJavaClient</span><span class="o">.</span><span class="na">getInstance</span><span class="o">();</span>
+</code></pre>
+
+<p>Then use a combination of me.bpulse.domain.proto.collector.CollectorMessageRQ.PulsesRQ, me.bpulse.domain.proto.collector.CollectorMessageRQ.Value and me.bpulse.domain.proto.collector.CollectorMessageRQ.Pulse in order to build the pulses you want to send according to the Pulse Definition made in BPULSE, for example:</p>
+<pre class="highlight java"><code><span class="c1">//Request instance</span>
+<span class="n">PulsesRQ</span> <span class="n">request</span><span class="o">;</span>
+<span class="c1">//Use the builder provided to create pulses instances</span>
+<span class="n">PulsesRQ</span><span class="o">.</span><span class="na">Builder</span> <span class="n">pulses</span> <span class="o">=</span> <span class="n">PulsesRQ</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">();</span>
+<span class="c1">//Pulse version, send 1.0 always, we will use this field later.</span>
+<span class="n">pulses</span><span class="o">.</span><span class="na">setVersion</span><span class="o">(</span><span class="s">"1.0"</span><span class="o">);</span>
+
+<span class="c1">//Use the Pulse builder to create each pulse individually</span>
+<span class="n">Pulse</span><span class="o">.</span><span class="na">Builder</span> <span class="n">pulse</span> <span class="o">=</span> <span class="n">Pulse</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">();</span>
+
+<span class="c1">//Name of the pulse definition, the same as defined using the BPULSE web app</span>
+<span class="n">pulse</span><span class="o">.</span><span class="na">setTypeId</span><span class="o">(</span><span class="s">"bpulse_hotelbeds_jfp"</span><span class="o">);</span>
+<span class="c1">//Time of the pulse, usually should be the current time but you can set whatever time you need</span>
+<span class="n">pulse</span><span class="o">.</span><span class="na">setTime</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">());</span>
+<span class="c1">//</span>
+<span class="n">pulse</span><span class="o">.</span><span class="na">setInstanceId</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="mi">1</span><span class="o">));</span>
+
+<span class="c1">//Use the Value builder to assing the different pulse values to each pulse</span>
+<span class="n">Value</span><span class="o">.</span><span class="na">Builder</span> <span class="n">value</span> <span class="o">=</span> <span class="n">Value</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">();</span>
+<span class="c1">//Name of the pulse attribute</span>
+<span class="n">value</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"attribute_name"</span><span class="o">);</span>
+<span class="c1">//Value of the current attribute</span>
+<span class="n">value</span><span class="o">.</span><span class="na">addValues</span><span class="o">(</span><span class="s">"attribute_value"</span><span class="o">);</span>
+<span class="c1">//Add the created value to the pulse instance</span>
+<span class="n">pulse</span><span class="o">.</span><span class="na">addValues</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
+
+<span class="c1">//Same as before but for a time value TODO Joda time</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">Value</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">();</span>
+<span class="n">value</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"fechaProceso"</span><span class="o">);</span>          
+<span class="n">value</span><span class="o">.</span><span class="na">addValues</span><span class="o">(</span><span class="n">fmt</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="k">new</span> <span class="n">DateTime</span><span class="o">()));</span>
+<span class="n">pulse</span><span class="o">.</span><span class="na">addValues</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
+
+<span class="c1">//Same as before but for a numeric value</span>
+<span class="n">value</span> <span class="o">=</span> <span class="n">Value</span><span class="o">.</span><span class="na">newBuilder</span><span class="o">();</span>
+<span class="n">value</span><span class="o">.</span><span class="na">setName</span><span class="o">(</span><span class="s">"numeric_attribute"</span><span class="o">);</span>
+<span class="n">value</span><span class="o">.</span><span class="na">addValues</span><span class="o">(</span><span class="s">"123456789"</span><span class="o">);</span>
+<span class="n">pulse</span><span class="o">.</span><span class="na">addValues</span><span class="o">(</span><span class="n">value</span><span class="o">);</span>
+
+<span class="c1">//Add the pulse to the pulses collection</span>
+<span class="n">pulses</span><span class="o">.</span><span class="na">addPulse</span><span class="o">(</span><span class="n">pulse</span><span class="o">);</span>
+
+<span class="c1">//Then build the pulses request</span>
+<span class="n">request</span> <span class="o">=</span> <span class="n">pulses</span><span class="o">.</span><span class="na">build</span><span class="o">();</span>
+</code></pre>
+
+<blockquote>
+<p>Finally send the pulse created with:</p>
+</blockquote>
+<pre class="highlight java"><code><span class="c1">//invoke the operation for inserting the pulse into pulses repository.</span>
+<span class="n">BPulseJavaClient</span> <span class="n">client</span> <span class="o">=</span> <span class="n">BPulseJavaClient</span><span class="o">.</span><span class="na">getInstance</span><span class="o">();</span>
+<span class="n">client</span><span class="o">.</span><span class="na">sendPulse</span><span class="o">(</span><span class="n">request</span><span class="o">);</span>
+</code></pre>
+
+<h1 id="available-configuration-parameters">Available Configuration Parameters</h1>
+
+<blockquote>
+<p>An example of configuration file is shown:</p>
+</blockquote>
+<pre class="highlight java"><code><span class="n">BPULSE</span> <span class="n">JAVA</span> <span class="n">CLIENT</span> <span class="n">CONFIGURATION</span> <span class="n">PROPERTIES</span>
+<span class="n">bpulse</span><span class="o">.</span><span class="na">client</span><span class="o">.</span><span class="na">periodInMinutesNextExecTimer</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">bpulse</span><span class="o">.</span><span class="na">client</span><span class="o">.</span><span class="na">maxNumberPulsesReadFromTimer</span><span class="o">=</span><span class="mi">240000</span>
+<span class="n">bpulse</span><span class="o">.</span><span class="na">client</span><span class="o">.</span><span class="na">bpulseUsername</span><span class="o">=</span><span class="n">test_collector</span><span class="nd">@enterprise01</span><span class="o">.</span><span class="na">com</span>
+<span class="n">bpulse</span><span class="o">.</span><span class="na">client</span><span class="o">.</span><span class="na">bpulsePassword</span><span class="o">=</span><span class="n">ABclienteuno123</span>
+<span class="n">bpulse</span><span class="o">.</span><span class="na">client</span><span class="o">.</span><span class="na">bpulseRestURL</span><span class="o">=</span><span class="nl">http:</span><span class="c1">//192.168.0.130:8080/app.collector/collector/pulses</span>
+<span class="n">bpulse</span><span class="o">.</span><span class="na">client</span><span class="o">.</span><span class="na">pulsesRepositoryDBPath</span><span class="o">=</span><span class="nl">C:</span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">pulses_repository</span>
+<span class="n">bpulse</span><span class="o">.</span><span class="na">client</span><span class="o">.</span><span class="na">pulsesRepositoryDBMaxSizeBytes</span><span class="o">=</span><span class="mi">10737418240</span>
+<span class="n">bpulse</span><span class="o">.</span><span class="na">client</span><span class="o">.</span><span class="na">pulsesRepositoryMode</span><span class="o">=</span><span class="n">MEM</span>
+<span class="n">bpulse</span><span class="o">.</span><span class="na">client</span><span class="o">.</span><span class="na">pulsesRepositoryMemMaxNumberPulses</span><span class="o">=</span><span class="mi">750000</span>
+</code></pre>
+
+<p>BPulse java client has a configuration file to define the main parameters for sending and processing pulses (pulses repository path, number of threads for notifying pulses via BPULSE COLLECTOR REST SERVICE, etc.). It&rsquo;s definition is expected through java options property <strong>bpulse.client.config</strong> (e.g <strong>-Dbpulse.client.config=C:\tmp\config.properties</strong>).</p>
+
+<p>All properties are defined below:</p>
+
+<table><thead>
+<tr>
+<th>Variable name</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>bpulse.client.periodInMinutesNextExecTimer</td>
+<td>Delay time in minutes between timer executions for pulses notification (default value = 1).</td>
+</tr>
+<tr>
+<td>bpulse.client.maxNumberPulsesReadFromTimer</td>
+<td>Max number of read pulses for each timer execution from pulsesRepositoryDB for sending to BPULSE COLLECTOR REST SERVICE (default value = 180000).</td>
+</tr>
+<tr>
+<td>bpulse.client.bpulseUsername</td>
+<td>Client&rsquo;s Username for sending pulses to BPULSE COLLECTOR SERVICE.</td>
+</tr>
+<tr>
+<td>bpulse.client.bpulsePassword</td>
+<td>Client&rsquo;s Password  for sending pulses to BPULSE COLLECTOR SERVICE.</td>
+</tr>
+<tr>
+<td>bpulse.client.bpulseRestURL</td>
+<td>BPULSE COLLECTOR REST SERVICE URL.</td>
+</tr>
+<tr>
+<td>bpulse.client.pulsesRepositoryDBPath</td>
+<td>System Path to create the Pulses Repository (e.g C:/tmp/pulses_repository).</td>
+</tr>
+<tr>
+<td>bpulse.client.pulsesRepositoryDBMaxSizeBytes</td>
+<td>Pulses Repositories&rsquo; Allowed max size in bytes (default value = 1073741824).</td>
+</tr>
+<tr>
+<td>bpulse.client.pulsesRepositoryMode</td>
+<td>Pulses Repositories&rsquo; Mode:  MEM=PULSES IN MEMORY DB= PULSES IN EMBEDDED DATABASE.</td>
+</tr>
+<tr>
+<td>bpulse.client.pulsesRepositoryMemMaxNumberPulses</td>
+<td>When the pulses repositories&rsquo; mode is MEM, it&rsquo;s necessary define the maximum number of pulses in memory(default value = 1000000).</td>
+</tr>
+</tbody></table>
+
+<h1 id="about-logging">About Logging</h1>
+
+<p>BPulse Java Client uses SLF4J API for register logs from pulse processing sending via BPULSE REST SERVICE. SLF4J uses a set of binding dependencies for each supported logging framework (log4j, tinylog, jdk logging, logback). If the target application uses someone of these frameworks, it&rsquo;s neccessary add the related 
+binding dependency like these:</p>
+
+<blockquote>
+<p><strong>SLF4J Logging Framework Bindings</strong></p>
+</blockquote>
+<pre class="highlight java"><code><span class="o">&lt;!--</span> <span class="n">Dependency</span> <span class="k">for</span> <span class="n">Tinylog</span> <span class="n">binding</span> <span class="o">--&gt;</span>
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="na">tinylog</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">slf4j</span><span class="o">-</span><span class="n">binding</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">1.0</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+
+<span class="o">&lt;!--</span> <span class="n">Dependency</span> <span class="k">for</span> <span class="n">Logback</span> <span class="n">binding</span> <span class="o">--&gt;</span>
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">ch</span><span class="o">.</span><span class="na">qos</span><span class="o">.</span><span class="na">logback</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">logback</span><span class="o">-</span><span class="n">classic</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">1.0</span><span class="o">.</span><span class="mi">13</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+
+<span class="o">&lt;!--</span> <span class="n">Dependency</span> <span class="k">for</span> <span class="n">Apache</span> <span class="n">log4j</span> <span class="n">binding</span> <span class="o">--&gt;</span>
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span> 
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="na">slf4j</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span> 
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">slf4j</span><span class="o">-</span><span class="n">log4j12</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span> 
+    <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">1.7</span><span class="o">.</span><span class="mi">5</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span> 
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+
+</code></pre>
+
+<blockquote>
+<p>Each binding is associated with a version of logging API (i.e in the log4j case, the version 1.7.5 of slf4j-log4j12 uses by default Apache log4j 1.2.17).
+If your target application uses another version for these logging APIs, you must exclude it from the maven dependency and manage your own logging version. 
+In the case of log4j it would be something like this:</p>
+</blockquote>
+<pre class="highlight java"><code><span class="o">&lt;!--</span> <span class="n">Excludes</span> <span class="n">the</span> <span class="n">log4j</span> <span class="k">default</span> <span class="n">version</span> <span class="n">managed</span> <span class="n">by</span> <span class="n">SLF4J</span> <span class="n">binding</span> <span class="o">--&gt;</span>
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span> 
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">org</span><span class="o">.</span><span class="na">slf4j</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span> 
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">slf4j</span><span class="o">-</span><span class="n">log4j12</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span> 
+    <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">1.7</span><span class="o">.</span><span class="mi">5</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span> 
+    <span class="o">&lt;</span><span class="n">exclusions</span><span class="o">&gt;</span> 
+        <span class="o">&lt;</span><span class="n">exclusion</span><span class="o">&gt;</span> 
+            <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">log4j</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span> 
+            <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">log4j</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span> 
+        <span class="o">&lt;/</span><span class="n">exclusion</span><span class="o">&gt;</span> 
+    <span class="o">&lt;/</span><span class="n">exclusions</span><span class="o">&gt;</span> 
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+
+<span class="o">&lt;!--</span> <span class="n">Includes</span> <span class="n">your</span> <span class="n">own</span> <span class="n">log4j</span> <span class="n">version</span> <span class="o">(</span><span class="mf">1.2</span><span class="o">.</span><span class="mi">12</span> <span class="n">instead</span> <span class="n">of</span> <span class="mf">1.2</span><span class="o">.</span><span class="mi">17</span> <span class="n">in</span> <span class="k">this</span> <span class="k">case</span><span class="o">)</span> <span class="o">--&gt;</span>
+<span class="o">&lt;</span><span class="n">dependency</span><span class="o">&gt;</span> 
+    <span class="o">&lt;</span><span class="n">groupId</span><span class="o">&gt;</span><span class="n">log4j</span><span class="o">&lt;/</span><span class="n">groupId</span><span class="o">&gt;</span> 
+    <span class="o">&lt;</span><span class="n">artifactId</span><span class="o">&gt;</span><span class="n">log4j</span><span class="o">&lt;/</span><span class="n">artifactId</span><span class="o">&gt;</span> 
+    <span class="o">&lt;</span><span class="n">version</span><span class="o">&gt;</span><span class="mf">1.2</span><span class="o">.</span><span class="mi">12</span><span class="o">&lt;/</span><span class="n">version</span><span class="o">&gt;</span> 
+<span class="o">&lt;/</span><span class="n">dependency</span><span class="o">&gt;</span>
+
+</code></pre>
+
+<h2 id="logging-configuration-parameters">Logging Configuration Parameters</h2>
+
+<p>After selecting the logging api, it&rsquo;s necessary to add a java option according to the used logging framework:</p>
+
+<p>tinylog.writer = rollingfile
+tinylog.writer.filename = C:/tmp/log/bpulse-java-client-tinylog.log
+tinylog.writer.backups = 10
+tinylog.writer.label = timestamp
+tinylog.writer.policies = startup, size: 10KB</p>
+
+<p><strong>log4j java option:</strong> -Dlog4j.configuration=file:&ldquo;C:\tmp\log4j.properties&rdquo;</p>
+
+<blockquote>
+<p><strong>log4j&rsquo;s properties file example:</strong></p>
+</blockquote>
+<pre class="highlight java"><code><span class="err">##</span><span class="n">LOG4J</span> <span class="n">CONFIGURATION</span><span class="err">##</span>
+<span class="n">log4j</span><span class="o">.</span><span class="na">logger</span><span class="o">.</span><span class="na">bpulseLogger</span><span class="o">=</span><span class="n">INFO</span><span class="o">,</span> <span class="n">bpulseLogger</span>
+<span class="err">#</span> <span class="n">File</span> <span class="n">appender</span>
+<span class="n">log4j</span><span class="o">.</span><span class="na">appender</span><span class="o">.</span><span class="na">bpulseLogger</span><span class="o">=</span><span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">log4j</span><span class="o">.</span><span class="na">RollingFileAppender</span>
+<span class="n">log4j</span><span class="o">.</span><span class="na">appender</span><span class="o">.</span><span class="na">bpulseLogger</span><span class="o">.</span><span class="na">layout</span><span class="o">=</span><span class="n">org</span><span class="o">.</span><span class="na">apache</span><span class="o">.</span><span class="na">log4j</span><span class="o">.</span><span class="na">PatternLayout</span>
+<span class="err">#</span><span class="o">%-</span><span class="mi">7</span><span class="n">p</span> <span class="o">%</span><span class="n">d</span><span class="o">{(</span><span class="n">dd</span><span class="o">/</span><span class="n">MM</span><span class="o">/</span><span class="n">yyyy</span><span class="o">)</span> <span class="nl">HH:mm:</span><span class="n">ss</span><span class="o">}</span> <span class="o">[%</span><span class="n">c</span><span class="o">{</span><span class="mi">1</span><span class="o">}]%</span><span class="n">t</span> <span class="o">%</span><span class="n">m</span><span class="o">%</span><span class="n">n</span>
+<span class="err">#</span><span class="o">%</span><span class="n">d</span><span class="o">{</span><span class="n">yyyy</span><span class="o">-</span><span class="n">MM</span><span class="o">-</span><span class="n">dd</span> <span class="nl">HH:mm:</span><span class="n">ss</span><span class="o">}</span> <span class="o">%-</span><span class="mi">5</span><span class="n">p</span> <span class="o">-</span> <span class="o">%</span><span class="n">m</span><span class="o">%</span><span class="n">n</span>
+<span class="n">log4j</span><span class="o">.</span><span class="na">appender</span><span class="o">.</span><span class="na">bpulseLogger</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">ConversionPattern</span><span class="o">=%-</span><span class="mi">7</span><span class="n">p</span> <span class="o">%</span><span class="n">d</span><span class="o">{(</span><span class="n">dd</span><span class="o">/</span><span class="n">MM</span><span class="o">/</span><span class="n">yyyy</span><span class="o">)</span> <span class="nl">HH:mm:</span><span class="n">ss</span><span class="o">}</span> <span class="o">[%</span><span class="n">c</span><span class="o">{</span><span class="mi">1</span><span class="o">}]%</span><span class="n">t</span> <span class="o">%</span><span class="n">m</span><span class="o">%</span><span class="n">n</span>
+<span class="n">log4j</span><span class="o">.</span><span class="na">appender</span><span class="o">.</span><span class="na">bpulseLogger</span><span class="o">.</span><span class="na">File</span><span class="o">=</span><span class="nl">C:</span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">bpulse</span><span class="o">-</span><span class="n">java</span><span class="o">-</span><span class="n">client</span><span class="o">.</span><span class="na">log</span>
+<span class="n">log4j</span><span class="o">.</span><span class="na">appender</span><span class="o">.</span><span class="na">bpulseLogger</span><span class="o">.</span><span class="na">MaxFileSize</span><span class="o">=</span><span class="mi">25</span><span class="n">MB</span>
+<span class="n">log4j</span><span class="o">.</span><span class="na">appender</span><span class="o">.</span><span class="na">bpulseLogger</span><span class="o">.</span><span class="na">MaxBackupIndex</span><span class="o">=</span><span class="mi">10</span>
+</code></pre>
+
+<p><strong>logback java option:</strong> -Dlogback.configurationFile=C:\tmp\logback.xml</p>
+
+<blockquote>
+<p><strong>logback&rsquo;s properties file example:</strong></p>
+</blockquote>
+<pre class="highlight java"><code><span class="o">&lt;</span><span class="n">configuration</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">appender</span> <span class="n">name</span><span class="o">=</span><span class="s">"FILE"</span> <span class="kd">class</span><span class="err">="</span><span class="nc">ch</span><span class="o">.</span><span class="na">qos</span><span class="o">.</span><span class="na">logback</span><span class="o">.</span><span class="na">core</span><span class="o">.</span><span class="na">FileAppender</span><span class="s">"&gt;
+    &lt;file&gt;C:/tmp/log/bpulse-java-client-logback.log&lt;/file&gt;
+
+    &lt;encoder&gt;
+      &lt;pattern&gt;%date %level [%thread] %logger{10} [%file:%line] %msg%n&lt;/pattern&gt;
+    &lt;/encoder&gt;
+  &lt;/appender&gt;
+
+  &lt;appender name="</span><span class="n">STDOUT</span><span class="s">" class="</span><span class="n">ch</span><span class="o">.</span><span class="na">qos</span><span class="o">.</span><span class="na">logback</span><span class="o">.</span><span class="na">core</span><span class="o">.</span><span class="na">ConsoleAppender</span><span class="s">"&gt;
+    &lt;encoder&gt;
+      &lt;pattern&gt;%msg%n&lt;/pattern&gt;
+    &lt;/encoder&gt;
+  &lt;/appender&gt;
+
+  &lt;root level="</span><span class="n">debug</span><span class="s">"&gt;
+    &lt;appender-ref ref="</span><span class="n">FILE</span><span class="s">" /&gt;
+    &lt;appender-ref ref="</span><span class="n">STDOUT</span><span class="err">"</span> <span class="o">/&gt;</span>
+  <span class="o">&lt;/</span><span class="n">root</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">configuration</span><span class="o">&gt;</span>
+</code></pre>
+
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+                <a href="#" data-language-name="java">java</a>
+                <a href="#" data-language-name="go">go</a>
+                <a href="#" data-language-name="net">net</a>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>
